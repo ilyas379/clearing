@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Клиринг между друзьями</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f7f9fb;
+        color: #333;
+    }
+    header {
+        background: linear-gradient(to right, #00b09b, #96c93d);
+        padding: 1rem;
+        text-align: center;
+        color: white;
+    }
+    main {
+        max-width: 700px;
+        margin: auto;
+        padding: 1rem;
+    }
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+    button {
+        background: #00b09b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+        font-size: 1rem;
+    }
+    button:hover {
+        background: #019688;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    th, td {
+        padding: 0.7rem;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+    }
+    th {
+        background: #f0f3f6;
+    }
+    input {
+        width: 90%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    .result, .stat {
+        margin-top: 1.5rem;
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .result ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .result li {
+        padding: 0.4rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    .result li:last-child {
+        border-bottom: none;
+    }
+    @media (max-width: 600px) {
+        th, td { padding: 0.5rem; }
+        input { font-size: 0.9rem; }
+        button { font-size: 0.9rem; padding: 0.5rem 0.8rem; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Калькулятор клиринга</h1>
+    <p>Быстрый расчёт «кто кому и сколько» на вечеринке</p>
+</header>
+
+<main>
+    <div class="controls">
+        <div>
+            <button onclick="addRow()">+ Добавить</button>
+            <button onclick="removeRow()">– Удалить</button>
+        </div>
+        <div>Всего участников: <span id="numPeople">3</span></div>
+    </div>
+    <div id="tableContainer"></div>
+    <div id="stat" class="stat"></div>
+    <div id="result" class="result"></div>
+</main>
+
+<script>
+let numPeople = 3;
+
+function renderTable() {
+    document.getElementById('numPeople').textContent = numPeople;
+    let html = '<table><tr><th>Имя</th><th>Сумма</th></tr>';
+    for (let i = 0; i < numPeople; i++) {
+        html += `<tr>
+            <td><input type="text" id="name${i}" placeholder="Имя ${i+1}"></td>
+            <td><input type="number" step="0.01" id="amount${i}" value="0"></td>
+        </tr>`;
+    }
+    html += '</table><br><button onclick="calculate()">Рассчитать</button>';
+    document.getElementById("tableContainer").innerHTML = html;
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("stat").innerHTML = "";
+}
+function addRow() {
+    numPeople++;
+    renderTable();
+}
+function removeRow() {
+    if (numPeople > 2) {
+        numPeople--;
+        renderTable();
+    }
+}
+renderTable();
+
+function calculate() {
+    let people = [];
+    let total = 0;
+    for (let i = 0; i < numPeople; i++) {
+        let name = document.getElementById(`name${i}`).value.trim() || `Человек ${i+1}`;
+        let amount = parseFloat(document.getElementById(`amount${i}`).value) || 0;
+        people.push({ name, amount });
+        total += amount;
+    }
+    let avg = total / numPeople;
+
+    document.getElementById("stat").innerHTML =
+        `<b>Всего потрачено:</b> ${total.toFixed(2)} руб.<br>
+         <b>Средняя сумма на человека:</b> ${avg.toFixed(2)} руб.`;
+
+    let balances = people.map(p => ({ name: p.name, diff: p.amount - avg }));
+    let debtors = balances.filter(b => b.diff < -0.01).sort((a,b)=>a.diff-b.diff);
+    let creditors = balances.filter(b => b.diff > 0.01).sort((a,b)=>b.diff-a.diff);
+
+    let res = [];
+    let i = 0, j = 0;
+
+    while (i < debtors.length && j < creditors.length) {
+        let debtor = debtors[i];
+        let creditor = creditors[j];
+        let pay = Math.min(-debtor.diff, creditor.diff);
+        let payDisplay = Math.round(pay*100)/100;
+
+        res.push(`${debtor.name} → ${creditor.name}: ${payDisplay.toFixed(2)} руб.`);
+
+        debtor.diff += pay;
+        creditor.diff -= pay;
+
+        if (Math.abs(debtor.diff) < 0.009) i++;
+        if (Math.abs(creditor.diff) < 0.009) j++;
+    }
+
+    if (res.length === 0) {
+        res.push("Никто никому не должен");
+    }
+
+    document.getElementById("result").innerHTML =
+        "<h2>Результат:</h2><ul>" + res.map(r=>`<li>${r}</li>`).join("") + "</ul>";
+}
+</script>
+
+</body>
+</html>
