@@ -92,12 +92,10 @@
 </style>
 </head>
 <body>
-
 <header>
     <h1>Калькулятор клиринга</h1>
     <p>Быстрый расчёт «кто кому и сколько» на вечеринке</p>
 </header>
-
 <main>
     <div class="controls">
         <div>
@@ -110,10 +108,8 @@
     <div id="stat" class="stat"></div>
     <div id="result" class="result"></div>
 </main>
-
 <script>
 let numPeople = 3;
-
 function renderTable() {
     document.getElementById('numPeople').textContent = numPeople;
     let html = '<table><tr><th>Имя</th><th>Сумма</th></tr>';
@@ -139,7 +135,6 @@ function removeRow() {
     }
 }
 renderTable();
-
 function calculate() {
     let people = [];
     let total = 0;
@@ -150,41 +145,34 @@ function calculate() {
         total += amount;
     }
     let avg = total / numPeople;
-
     document.getElementById("stat").innerHTML =
         `<b>Всего потрачено:</b> ${total.toFixed(2)} руб.<br>
          <b>Средняя сумма на человека:</b> ${avg.toFixed(2)} руб.`;
-
     let balances = people.map(p => ({ name: p.name, diff: p.amount - avg }));
     let debtors = balances.filter(b => b.diff < -0.01).sort((a,b)=>a.diff-b.diff);
     let creditors = balances.filter(b => b.diff > 0.01).sort((a,b)=>b.diff-a.diff);
-
     let res = [];
     let i = 0, j = 0;
-
     while (i < debtors.length && j < creditors.length) {
         let debtor = debtors[i];
         let creditor = creditors[j];
         let pay = Math.min(-debtor.diff, creditor.diff);
         let payDisplay = Math.round(pay*100)/100;
-
         res.push(`${debtor.name} → ${creditor.name}: ${payDisplay.toFixed(2)} руб.`);
-
         debtor.diff += pay;
         creditor.diff -= pay;
-
         if (Math.abs(debtor.diff) < 0.009) i++;
         if (Math.abs(creditor.diff) < 0.009) j++;
     }
-
     if (res.length === 0) {
         res.push("Никто никому не должен");
     }
-
     document.getElementById("result").innerHTML =
         "<h2>Результат:</h2><ul>" + res.map(r=>`<li>${r}</li>`).join("") + "</ul>";
 }
 </script>
+
+<!-- Яндекс.Метрика -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -210,8 +198,7 @@ function calculate() {
 <noscript>
     <div><img src="https://mc.yandex.ru/watch/103807306" style="position:absolute; left:-9999px;" alt="" /></div>
 </noscript>
+<!-- /Яндекс.Метрика -->
 
 </body>
 </html>
-
-
