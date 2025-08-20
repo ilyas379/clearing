@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Клиринг между друзьями</title>
 <style>
     body {
@@ -84,20 +84,6 @@
     .result li:last-child {
         border-bottom: none;
     }
-    #ym-loaded {
-        margin-top: 10px;
-        font-size: 0.9rem;
-        color: green;
-        font-weight: bold;
-        text-align: center;
-    }
-    #ym-error {
-        margin-top: 10px;
-        font-size: 0.9rem;
-        color: red;
-        font-weight: bold;
-        text-align: center;
-    }
     @media (max-width: 600px) {
         th, td { padding: 0.5rem; }
         input { font-size: 0.9rem; }
@@ -121,8 +107,6 @@
     <div id="tableContainer"></div>
     <div id="stat" class="stat"></div>
     <div id="result" class="result"></div>
-    <div id="ym-loaded"></div>
-    <div id="ym-error"></div>
 </main>
 <script>
 let numPeople = 3;
@@ -183,3 +167,38 @@ function calculate() {
     if (res.length === 0) {
         res.push("Никто никому не должен");
     }
+    document.getElementById("result").innerHTML =
+        "<h2>Результат:</h2><ul>" + res.map(r=>`<li>${r}</li>`).join("") + "</ul>";
+}
+</script>
+
+<!-- Яндекс.Метрика -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+            if (document.scripts[j].src === r) { return; }
+        }
+        k=e.createElement(t),
+        a=e.getElementsByTagName(t)[0],
+        k.async=1,
+        k.src=r,
+        a.parentNode.insertBefore(k,a)
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(103807306, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true,
+        ecommerce:"dataLayer"
+    });
+</script>
+<noscript>
+    <div><img src="https://mc.yandex.ru/watch/103807306" style="position:absolute; left:-9999px;" alt="" /></div>
+</noscript>
+<!-- /Яндекс.Метрика -->
+
+</body>
+</html>
